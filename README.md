@@ -21,13 +21,13 @@ Before starting, ensure you have SSH installed on your machine. This script is d
 Clone this repository to get started:
 
 ````
-git clone https://github.com/oyin25/serveonet-termux.git
+git clone https://github.com/oyin25/serveo.git
 ````
 
 After cloning, navigate into the project directory:
 
 ````
-cd serveonet-termux
+cd serveo
 ````
 
 Next, identify the script you wish to run (for the sake of this guide, let's assume your script is named serveo.sh). You will need to make it executable:
@@ -50,3 +50,10 @@ For instance, if you want to forward your local port 8080 to be accessible via p
 ````
 ./hosted.sh 80 8080
 ````
+
+With subdomain
+
+````
+./hosted.sh 80 8080 YOUR_NAME
+````
+
