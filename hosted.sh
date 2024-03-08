@@ -1,7 +1,7 @@
 #!/bin/bash
 # hosted.sh
 
-CURRENT_VERSION="1.0"
+CURRENT_VERSION="1.1"
 
 # Function to display help information
 show_help() {
