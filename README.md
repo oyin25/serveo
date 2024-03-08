@@ -57,3 +57,12 @@ With subdomain
 ./hosted.sh 80 8080 YOUR_NAME
 ````
 
+You can get help or update the script using below command
+
+````
+./hosted.sh help
+````
+
+````
+./hosted.sh update
+````
