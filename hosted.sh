@@ -5,7 +5,7 @@ CURRENT_VERSION="1.1"
 
 # Function to display help information
 show_help() {
-  echo "Usage: ./hosted.sh [options] [remote-port] [local-port] [subdomain(optional)]"
+  echo "Usage: ./hosted.sh -p|-t [remote-port] [local-port] [subdomain(optional)]"
   echo "Options:"
   echo "  -p                         Use autossh for a permanent, resilient connection"
   echo "  -t                         Use ssh for a temporary connection"
@@ -25,15 +25,18 @@ check_for_updates() {
 }
 
 ssh_command=""
+option_passed=false
 
 # Parse options
 while getopts ":pt" opt; do
   case ${opt} in
     p )
       ssh_command="autossh -M 0"
+      option_passed=true
       ;;
     t )
       ssh_command="ssh"
+      option_passed=true
       ;;
     \? )
       echo "Invalid option: $OPTARG" 1>&2
@@ -42,38 +45,33 @@ while getopts ":pt" opt; do
       ;;
   esac
 done
+
+# Remove the options from the arguments list
 shift $((OPTIND -1))
 
 # Validate if either -p or -t is provided
-if [ -z "$ssh_command" ]; then
+if [ "$option_passed" = false ]; then
   echo "You must specify either -p for a permanent connection or -t for a temporary connection."
   show_help
   exit 1
 fi
 
 # Handle different commands
-if [[ -n $1 ]] && [[ -n $2 ]]; then
-  # Use command with or without subdomain based on user input
-  if [[ -n $3 ]]; then
-    # With subdomain if provided
-    $ssh_command -R $3:$1:localhost:$2 serveo.net
-  else
-    # Without subdomain, just port forwarding
-    $ssh_command -R $1:localhost:$2 serveo.net
+if [[ $# -ge 2 ]]; then
+  remote_port=$1
+  local_port=$2
+  subdomain=${3:-""}
+  
+  # Construct the remote forwarding part of the SSH command
+  forwarding_spec="$remote_port:localhost:$local_port"
+  if [[ -n $subdomain ]]; then
+    # If subdomain is provided, prefix it to the forwarding specification
+    forwarding_spec="$subdomain:$forwarding_spec"
   fi
+  
+  # Execute the SSH or autossh command
+  $ssh_command -R $forwarding_spec serveo.net
 else
-  case "$1" in
-    update)
-      # Navigate to the script's directory and pull updates
-      cd "$(dirname "$0")" && git pull https://github.com/oyin25/serveo.git main
-      echo "Script updated successfully!"
-      ;;
-    help)
-      show_help
-      ;;
-    *)
-      echo "Error: Incorrect usage."
-      show_help
-      ;;
-  esac
+  echo "Error: Incorrect usage."
+  show_help
 fi
